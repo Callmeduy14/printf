@@ -1,88 +1,108 @@
 #include "ft_printf.h"
 
-// Print satu karakter
-static int ft_putchar(char c) {
-    return write(1, &c, 1);
+// Main ft_printf implementation with bonus support and comments
+int ft_printf(const char *format, ...)
+{
+	va_list args;
+	int count = 0;
+	int i = 0;
+
+	if (!format)
+		return (-1);
+	va_start(args, format);
+	while (format[i])
+	{
+		if (format[i] == '%' && format[i + 1])
+		{
+			t_format fmt = {0};
+			// Parse format options (flags, width, precision, specifier)
+			i = parse_format(format, i + 1, &fmt, args);
+			// Call the appropriate handler based on the specifier
+			switch (fmt.specifier)
+			{
+				case 'c': count += ft_handle_char(args, &fmt); break;
+				case 's': count += ft_handle_string(args, &fmt); break;
+				case 'p': count += ft_handle_pointer(args, &fmt); break;
+				case 'd': count += ft_handle_decimal(args, &fmt); break;
+				case 'i': count += ft_handle_integer(args, &fmt); break;
+				case 'u': count += ft_handle_unsigned(args, &fmt); break;
+				case 'x': count += ft_handle_hex_lower(args, &fmt); break;
+				case 'X': count += ft_handle_hex_upper(args, &fmt); break;
+				case '%': count += ft_handle_percent(&fmt); break;
+				default:  count += ft_putchar(fmt.specifier); break;
+			}
+		}
+		else
+		{
+			// Print normal characters
+			count += ft_putchar(format[i]);
+		}
+		i++;
+	}
+	va_end(args);
+	return (count);
 }
 
-// Print string, handle NULL
-static int ft_putstr(const char *s) {
-    int len = 0;
-    if (!s)
-        s = "(null)";
-    while (*s)
-        len += ft_putchar(*s++);
-    return len;
-}
+// Parse format options (flags, width, precision, specifier) from format string
+// Returns the index of the specifier character
+int parse_format(const char *format, int i, t_format *fmt, va_list args)
+{
+	// Reset format struct
+	fmt->flag_minus = 0;
+	fmt->flag_zero = 0;
+	fmt->flag_hash = 0;
+	fmt->flag_space = 0;
+	fmt->flag_plus = 0;
+	fmt->width = 0;
+	fmt->precision = 0;
+	fmt->precision_specified = 0;
+	fmt->specifier = 0;
 
-// Print integer signed
-static int ft_putnbr(int n) {
-    int len = 0;
-    if (n == -2147483648)
-        return ft_putstr("-2147483648");
-    if (n < 0) {
-        len += ft_putchar('-');
-        n = -n;
-    }
-    if (n >= 10)
-        len += ft_putnbr(n / 10);
-    len += ft_putchar((n % 10) + '0');
-    return len;
-}
-
-// Print unsigned integer
-static int ft_putunbr(unsigned int n) {
-    int len = 0;
-    if (n >= 10)
-        len += ft_putunbr(n / 10);
-    len += ft_putchar((n % 10) + '0');
-    return len;
-}
-
-// Print heksadesimal
-static int ft_puthex(unsigned long n, int upper) {
-    int len = 0;
-    char *base = upper ? "0123456789ABCDEF" : "0123456789abcdef";
-    if (n >= 16)
-        len += ft_puthex(n / 16, upper);
-    len += ft_putchar(base[n % 16]);
-    return len;
-}
-
-// Fungsi utama
-int ft_printf(const char *format, ...) {
-    va_list args;
-    int i = 0, len = 0;
-
-    va_start(args, format);
-    while (format[i]) {
-        if (format[i] == '%' && format[i + 1]) {
-            i++;
-            if (format[i] == 'c')
-                len += ft_putchar(va_arg(args, int));
-            else if (format[i] == 's')
-                len += ft_putstr(va_arg(args, char *));
-            else if (format[i] == 'd' || format[i] == 'i')
-                len += ft_putnbr(va_arg(args, int));
-            else if (format[i] == 'u')
-                len += ft_putunbr(va_arg(args, unsigned int));
-            else if (format[i] == 'x')
-                len += ft_puthex(va_arg(args, unsigned int), 0);
-            else if (format[i] == 'X')
-                len += ft_puthex(va_arg(args, unsigned int), 1);
-            else if (format[i] == 'p') {
-                len += ft_putstr("0x");
-                len += ft_puthex((unsigned long)va_arg(args, void *), 0);
-            }
-            else if (format[i] == '%')
-                len += ft_putchar('%');
-            else
-                len += ft_putchar(format[i]);
-        } else {
-            len += ft_putchar(format[i]);
-        }
-        i++;
-    }
-    va_end(args);
-    return len;
+	// Parse flags
+	while (format[i] == '-' || format[i] == '0' || format[i] == '#' || format[i] == ' ' || format[i] == '+')
+	{
+		if (format[i] == '-') fmt->flag_minus = 1;
+		if (format[i] == '0') fmt->flag_zero = 1;
+		if (format[i] == '#') fmt->flag_hash = 1;
+		if (format[i] == ' ') fmt->flag_space = 1;
+		if (format[i] == '+') fmt->flag_plus = 1;
+		i++;
+	}
+	// Parse width
+	if (format[i] == '*')
+	{
+		fmt->width = va_arg(args, int);
+		i++;
+	}
+	else
+	{
+		while (format[i] >= '0' && format[i] <= '9')
+		{
+			fmt->width = fmt->width * 10 + (format[i] - '0');
+			i++;
+		}
+	}
+	// Parse precision
+	if (format[i] == '.')
+	{
+		fmt->precision_specified = 1;
+		fmt->precision = 0;
+		i++;
+		if (format[i] == '*')
+		{
+			fmt->precision = va_arg(args, int);
+			i++;
+		}
+		else
+		{
+			while (format[i] >= '0' && format[i] <= '9')
+			{
+				fmt->precision = fmt->precision * 10 + (format[i] - '0');
+				i++;
+			}
+		}
+	}
+	// Set the specifier
+	fmt->specifier = format[i];
+	return i;
 } 
