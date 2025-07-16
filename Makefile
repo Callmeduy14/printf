@@ -1,5 +1,5 @@
 NAME = libftprintf.a
-SRC = ft_printf.c
+SRC = ft_printf.c ft_printf_bonus.c
 OBJ = $(SRC:.c=.o)
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
@@ -19,4 +19,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re 
+.PHONY: all clean fclean re
