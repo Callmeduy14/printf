@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -11,12 +12,21 @@
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+=======
+#include "ft_printf.h"
+#include <stdarg.h>
+#include <unistd.h>
+>>>>>>> e2dce9b4dcee1cd0128f795096f2343fd9678027
 
 int ft_printf_bonus(const char *format, ...) {
     va_list args;
     int i = 0;
     int count = 0;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> e2dce9b4dcee1cd0128f795096f2343fd9678027
     va_start(args, format);
 
     while (format[i]) {
