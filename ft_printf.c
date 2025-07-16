@@ -1,108 +1,102 @@
 #include "ft_printf.h"
 
-// Main ft_printf implementation with bonus support and comments
-int ft_printf(const char *format, ...)
+static int ft_putchar(char c)
 {
-	va_list args;
-	int count = 0;
-	int i = 0;
-
-	if (!format)
-		return (-1);
-	va_start(args, format);
-	while (format[i])
-	{
-		if (format[i] == '%' && format[i + 1])
-		{
-			t_format fmt = {0};
-			// Parse format options (flags, width, precision, specifier)
-			i = parse_format(format, i + 1, &fmt, args);
-			// Call the appropriate handler based on the specifier
-			switch (fmt.specifier)
-			{
-				case 'c': count += ft_handle_char(args, &fmt); break;
-				case 's': count += ft_handle_string(args, &fmt); break;
-				case 'p': count += ft_handle_pointer(args, &fmt); break;
-				case 'd': count += ft_handle_decimal(args, &fmt); break;
-				case 'i': count += ft_handle_integer(args, &fmt); break;
-				case 'u': count += ft_handle_unsigned(args, &fmt); break;
-				case 'x': count += ft_handle_hex_lower(args, &fmt); break;
-				case 'X': count += ft_handle_hex_upper(args, &fmt); break;
-				case '%': count += ft_handle_percent(&fmt); break;
-				default:  count += ft_putchar(fmt.specifier); break;
-			}
-		}
-		else
-		{
-			// Print normal characters
-			count += ft_putchar(format[i]);
-		}
-		i++;
-	}
-	va_end(args);
-	return (count);
+    return write(1, &c, 1);
 }
 
-// Parse format options (flags, width, precision, specifier) from format string
-// Returns the index of the specifier character
-int parse_format(const char *format, int i, t_format *fmt, va_list args)
+static int ft_putstr(const char *s)
 {
-	// Reset format struct
-	fmt->flag_minus = 0;
-	fmt->flag_zero = 0;
-	fmt->flag_hash = 0;
-	fmt->flag_space = 0;
-	fmt->flag_plus = 0;
-	fmt->width = 0;
-	fmt->precision = 0;
-	fmt->precision_specified = 0;
-	fmt->specifier = 0;
+    int len = 0;
+    if (!s)
+        s = "(null)";
+    while (s[len])
+        ft_putchar(s[len++]);
+    return len;
+}
 
-	// Parse flags
-	while (format[i] == '-' || format[i] == '0' || format[i] == '#' || format[i] == ' ' || format[i] == '+')
-	{
-		if (format[i] == '-') fmt->flag_minus = 1;
-		if (format[i] == '0') fmt->flag_zero = 1;
-		if (format[i] == '#') fmt->flag_hash = 1;
-		if (format[i] == ' ') fmt->flag_space = 1;
-		if (format[i] == '+') fmt->flag_plus = 1;
-		i++;
-	}
-	// Parse width
-	if (format[i] == '*')
-	{
-		fmt->width = va_arg(args, int);
-		i++;
-	}
-	else
-	{
-		while (format[i] >= '0' && format[i] <= '9')
-		{
-			fmt->width = fmt->width * 10 + (format[i] - '0');
-			i++;
-		}
-	}
-	// Parse precision
-	if (format[i] == '.')
-	{
-		fmt->precision_specified = 1;
-		fmt->precision = 0;
-		i++;
-		if (format[i] == '*')
-		{
-			fmt->precision = va_arg(args, int);
-			i++;
-		}
-		else
-		{
-			while (format[i] >= '0' && format[i] <= '9')
-			{
-				fmt->precision = fmt->precision * 10 + (format[i] - '0');
-				i++;
-			}
-		}
-	}
-	// Set the specifier
-	fmt->specifier = format[i];
-	return i;
+static int ft_putnbr(int n)
+{
+    int count = 0;
+    char c;
+    if (n == -2147483648)
+        return write(1, "-2147483648", 11);
+    if (n < 0)
+    {
+        count += ft_putchar('-');
+        n = -n;
+    }
+    if (n > 9)
+        count += ft_putnbr(n / 10);
+    c = n % 10 + '0';
+    count += ft_putchar(c);
+    return count;
+}
+
+static int ft_putunbr(unsigned int n)
+{
+    int count = 0;
+    char c;
+    if (n > 9)
+        count += ft_putunbr(n / 10);
+    c = n % 10 + '0';
+    count += ft_putchar(c);
+    return count;
+}
+
+static int ft_puthex(unsigned long n, int upper)
+{
+    int count = 0;
+    char *base;
+    base = upper ? "0123456789ABCDEF" : "0123456789abcdef";
+    if (n >= 16)
+        count += ft_puthex(n / 16, upper);
+    count += ft_putchar(base[n % 16]);
+    return count;
+}
+
+static int ft_putptr(void *ptr)
+{
+    int count = 0;
+    unsigned long addr = (unsigned long)ptr;
+    count += ft_putstr("0x");
+    count += ft_puthex(addr, 0);
+    return count;
+}
+
+int ft_printf(const char *format, ...)
+{
+    va_list args;
+    int i = 0;
+    int count = 0;
+
+    va_start(args, format);
+    while (format[i])
+    {
+        if (format[i] == '%')
+        {
+            i++;
+            if (format[i] == 'c')
+                count += ft_putchar(va_arg(args, int));
+            else if (format[i] == 's')
+                count += ft_putstr(va_arg(args, char *));
+            else if (format[i] == 'd' || format[i] == 'i')
+                count += ft_putnbr(va_arg(args, int));
+            else if (format[i] == 'u')
+                count += ft_putunbr(va_arg(args, unsigned int));
+            else if (format[i] == 'x')
+                count += ft_puthex(va_arg(args, unsigned int), 0);
+            else if (format[i] == 'X')
+                count += ft_puthex(va_arg(args, unsigned int), 1);
+            else if (format[i] == 'p')
+                count += ft_putptr(va_arg(args, void *));
+            else if (format[i] == '%')
+                count += ft_putchar('%');
+        }
+        else
+            count += ft_putchar(format[i]);
+        i++;
+    }
+    va_end(args);
+    return count;
 } 
