@@ -1,6 +1,7 @@
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 
+# include "../libft/libft.h"
 # include <unistd.h>    // Untuk write()
 # include <stdarg.h>    // Untuk va_list
 # include <stdlib.h>    // Untuk malloc() dan free()
@@ -36,14 +37,13 @@ int         ft_print_hex(t_format fmt, unsigned int n, int uppercase);
 int         ft_print_percent(t_format fmt);
 
 // Fungsi utilitas
-int         ft_strlen(const char *s);
-int         ft_putstr_fd(const char *s, int fd);
-int         ft_putchar_fd(char c, int fd);
+size_t      ft_strlen(const char *s);
+void        ft_putchar_fd(char c, int fd);
+void        ft_putstr_fd(char *s, int fd);
 int         ft_putnchar_fd(char c, int n, int fd);
 int         ft_isdigit(int c);
 char        *ft_itoa(int n);
 char        *ft_utoa(unsigned int n);
 char        *ft_xtoa(unsigned long n, int uppercase);
-int         ft_handle_width(t_format fmt, int len, int zero);
 
 #endif
