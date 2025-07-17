@@ -4,6 +4,7 @@
 # include <unistd.h>    // Untuk write()
 # include <stdarg.h>    // Untuk va_list
 # include <stdlib.h>    // Untuk malloc() dan free()
+# include "libft/libft.h"
 
 // Struktur untuk menyimpan informasi format
 typedef struct s_format

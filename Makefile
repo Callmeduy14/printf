@@ -11,6 +11,9 @@ SRCS = ft_printf.c ft_parse_format.c ft_print_bonus.c ft_conversion_utils.c
 # File objek
 OBJS = $(SRCS:.c=.o)
 
+LIBFT_PATH		=	./libft
+LIBFT			=	$(LIBFT_PATH)/libft.a
+
 # Aturan default
 all: $(NAME)
 
