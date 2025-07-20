@@ -1,341 +1,565 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf_functions.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/20 16:07:17 by yyudi             #+#    #+#             */
+/*   Updated: 2025/07/20 16:13:53 by yyudi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_printf.h"
 
-/*
-** Mencetak karakter tunggal
-** Return: jumlah karakter yang dicetak (1 jika sukses, -1 jika error)
-*/
 int ft_print_char(t_format fmt, int c)
 {
-    (void)fmt; // Tidak ada flag yang mempengaruhi %c
-    // Tulis karakter ke stdout
-    if (write(1, &c, 1) == -1)
-        return (-1);
-    return (1);
+    char buffer[256];  // Buffer cukup untuk menampung karakter + padding
+    int pos = 0;       // Posisi penulisan dalam buffer
+    int padding = 0;   // Jumlah padding yang dibutuhkan
+    char ch = (char)c; // Konversi ke char
+
+    // Hitung jumlah padding jika width > 1
+    if (fmt.width > 1)
+        padding = fmt.width - 1;
+
+    // Right alignment (padding sebelum karakter)
+    if (!fmt.minus && padding > 0)
+    {
+        // Isi buffer dengan spasi untuk padding
+        while (pos < padding)
+        {
+            buffer[pos] = ' ';
+            pos++;
+        }
+    }
+
+    // Tambahkan karakter utama ke buffer
+    buffer[pos] = ch;
+    pos++;
+
+    // Left alignment (padding setelah karakter)
+    if (fmt.minus && padding > 0)
+    {
+        // Isi buffer dengan spasi untuk padding
+        while (pos < fmt.width)
+        {
+            buffer[pos] = ' ';
+            pos++;
+        }
+    }
+
+    // Tulis seluruh buffer sekaligus
+    if (write(1, buffer, pos) == -1)
+        return -1;
+
+    return pos;
 }
 
-/*
-** Mencetak string dengan flag width, precision, dan alignment
-** Jika string NULL, cetak "(null)"
-** Return: jumlah karakter yang dicetak
-*/
 int ft_print_string(t_format fmt, char *str)
 {
-    int count = 0; // Jumlah karakter yang dicetak
-    int len = 0;   // Panjang string
-    int print_len = 0; // Panjang substring yang akan dicetak
+    char buffer[1024]; // Buffer cukup besar untuk string panjang
+    int pos = 0;       // Posisi penulisan dalam buffer
     const char *nullstr = "(null)";
+    int print_len;     // Panjang string yang akan dicetak
+    int pad_space;     // Jumlah padding yang dibutuhkan
+
+    // Handle string NULL
     if (!str)
-        str = (char *)nullstr; // Ganti NULL dengan (null)
-    while (str[len])
-        len++;
-    print_len = len;
-    // Jika ada precision, batasi panjang string
-    if (fmt.dot == 1 && fmt.precision < print_len && fmt.precision >= 0)
+        str = (char *)nullstr;
+
+    // Hitung panjang string
+    print_len = ft_strlen(str);
+
+    // Apply precision jika ada
+    if (fmt.dot == 1 && fmt.precision >= 0 && fmt.precision < print_len)
         print_len = fmt.precision;
-    int pad_space = fmt.width - print_len;
+
+    // Hitung padding space
+    pad_space = fmt.width - print_len;
     if (pad_space < 0)
         pad_space = 0;
-    // Padding kiri jika right-aligned
-    if (fmt.minus == 0 && pad_space > 0)
+
+    // Right alignment (padding sebelum string)
+    if (!fmt.minus && pad_space > 0)
     {
-        while (pad_space > 0)
+        // Isi buffer dengan spasi
+        while (pos < pad_space)
         {
-            if (write(1, " ", 1) == -1)
-                return -1;
-            count++;
-            pad_space--;
+            buffer[pos] = ' ';
+            pos++;
         }
     }
-    // Cetak substring
-    if (print_len > 0)
+
+    // Salin string ke buffer
+    ft_memcpy(buffer + pos, str, print_len);
+    pos += print_len;
+
+    // Left alignment (padding setelah string)
+    if (fmt.minus && pad_space > 0)
     {
-        if (write(1, str, print_len) == -1)
-            return -1;
-        count += print_len;
-    }
-    // Padding kanan jika left-aligned
-    if (fmt.minus == 1)
-    {
-        pad_space = fmt.width - count;
-        while (pad_space > 0)
+        // Isi buffer dengan spasi
+        while (pos < fmt.width)
         {
-            if (write(1, " ", 1) == -1)
-                return -1;
-            count++;
-            pad_space--;
+            buffer[pos] = ' ';
+            pos++;
         }
     }
-    return count;
+
+    // Tulis seluruh buffer sekaligus
+    if (write(1, buffer, pos) == -1)
+        return -1;
+
+    return pos;
 }
 
-/*
-** Mencetak pointer dalam format hexadecimal, diawali dengan "0x"
-** Return: jumlah karakter yang dicetak
-*/
+
+int ft_print_pointer_hex(unsigned long n)
+{
+	char *str = ft_xtoa(n, 0);  // ubah ke hex lowercase
+	int count = 0;
+
+	if (!str)
+		return -1;
+
+	// pakai ft_strlen untuk hitung panjang string hex
+	int len = (int)ft_strlen(str);
+
+	// tulis string hex ke stdout
+	if (write(1, str, len) == -1)
+	{
+		free(str);
+		return -1;
+	}
+	count = len;
+	free(str);
+	return count;
+}
+
 int ft_print_pointer(t_format fmt, unsigned long ptr)
 {
-    int count;
-    // Cetak prefix "0x"
-    if (write(1, "0x", 2) == -1)
-        return (-1);
-    count = 2;
-    // Cetak nilai pointer dalam hex (menggunakan ft_print_hex)
-    count += ft_print_hex(fmt, ptr, 0);
-    return (count);
+	int count = 0;  // Total karakter yang sudah dicetak
+	int len;		// Panjang string hasil konversi pointer + prefix "0x"
+	int pad;		// Banyaknya spasi untuk padding (jika width > panjang string)
+	int i;		  // Variabel iterator untuk loop
+
+	char *str;	  // String hasil konversi pointer ke hex (tanpa prefix "0x")
+
+	// Jika pointer NULL (0), string yang dicetak hanya "0"
+	if (ptr == 0)
+		str = "0";
+	else
+	{
+		// Jika bukan NULL, konversi pointer ke string hex lowercase
+		str = ft_xtoa(ptr, 0);
+		if (!str)   // Jika malloc gagal, return error
+			return -1;
+	}
+
+	// Hitung panjang string hex + 2 karakter untuk "0x"
+	len = (int)ft_strlen(str) + 2;
+
+	pad = 0; // Inisialisasi padding spasi
+	// Jika lebar field (width) lebih besar dari panjang string, hitung paddingnya
+	if (fmt.width > len)
+		pad = fmt.width - len;
+
+	// Jika flag minus tidak aktif (artinya padding di kiri)
+	if (!fmt.minus)
+	{
+		// Tulis spasi sebanyak pad ke stdout sebagai padding kiri
+		for (i = 0; i < pad; i++)
+		{
+			if (write(1, " ", 1) == -1)
+			{
+				// Jika terjadi error saat menulis, free memori jika perlu lalu return error
+				if (ptr != 0)
+					free(str);
+				return -1;
+			}
+			count++; // Tambah jumlah karakter yang dicetak
+		}
+	}
+
+	// Tulis prefix "0x" untuk menunjukan bahwa ini pointer hex
+	if (write(1, "0x", 2) == -1)
+	{
+		if (ptr != 0)
+			free(str);
+		return -1;
+	}
+	count += 2;
+
+	// Tulis string hex pointer ke stdout
+	if (write(1, str, ft_strlen(str)) == -1)
+	{
+		if (ptr != 0)
+			free(str);
+		return -1;
+	}
+	count += ft_strlen(str);
+
+	// Jika flag minus aktif (padding di kanan), tulis spasi setelah string
+	if (fmt.minus)
+	{
+		for (i = 0; i < pad; i++)
+		{
+			if (write(1, " ", 1) == -1)
+			{
+				if (ptr != 0)
+					free(str);
+				return -1;
+			}
+			count++;
+		}
+	}
+
+	// Jika pointer bukan NULL, maka string hasil konversi dialokasikan di heap
+	// Jadi harus di-free untuk menghindari memory leak
+	if (ptr != 0)
+		free(str);
+
+	return count; // Kembalikan total karakter yang sudah dicetak
 }
 
-/*
-** Mencetak integer (desimal) dengan semua flag, width, precision, dan alignment
-** Return: jumlah karakter yang dicetak
-*/
+
 int ft_print_int(t_format fmt, int n)
 {
-    char *num;
-    int count = 0;      // Jumlah karakter yang dicetak
-    int len = 0;        // Panjang digit (tanpa sign)
-    int is_neg = 0;     // Apakah n negatif
-    int pad_zero = 0;   // Jumlah zero padding (precision)
-    int print_sign = 0; // Apakah perlu cetak tanda (+, -, spasi)
-    int i;
-    // Cek negatif
-    if (n < 0)
-        is_neg = 1;
-    num = ft_itoa(n); // Konversi ke string
+    char buffer[256];  // Buffer cukup untuk angka panjang
+    int pos = 0;       // Posisi penulisan dalam buffer
+    char *num;         // String hasil konversi angka
+    int is_neg = 0;    // Flag angka negatif
+    int print_sign = 0;// Flag perlu tanda +/spasi
+    int pad_zero = 0;  // Jumlah zero padding
+    int pad_space = 0; // Jumlah space padding
+    int len = 0;       // Panjang digit
+    char pad_char;     // Karakter padding (' ' atau '0')
+
+    // Konversi angka ke string
+    num = ft_itoa(n);
     if (!num)
         return -1;
-    // Hitung panjang digit (tanpa sign)
-    i = 0;
-    while (num[i])
-        i++;
-    len = i;
+
+    // Tentukan flag negatif
+    if (n < 0)
+        is_neg = 1;
+
+    // Hitung panjang digit (abaikan tanda minus)
+    len = ft_strlen(num);
     if (is_neg)
         len--;
-    // Precision 0 dan n==0: tidak cetak digit
+
+    // Handle kasus precision 0 dan angka 0
     if (fmt.dot == 1 && fmt.precision == 0 && n == 0)
         len = 0;
-    // Hitung zero padding (precision)
+
+    // Hitung zero padding dari precision
     if (fmt.dot == 1 && fmt.precision > len)
         pad_zero = fmt.precision - len;
-    // Apakah perlu cetak tanda
+
+    // Tentukan apakah perlu tanda + atau spasi
     if (is_neg || fmt.plus || fmt.space)
         print_sign = 1;
-    // Hitung total karakter yang akan dicetak (sign + zero + digit)
-    int total = print_sign + pad_zero + len;
-    if (len == 0)
-        total = print_sign;
-    // Hitung padding spasi
-    int pad_space = fmt.width - total;
-    if (pad_space < 0)
-        pad_space = 0;
-    // Cetak padding kiri jika right-aligned
-    if (!fmt.minus) {
-        char pad = ' ';
-        if (fmt.zero && fmt.dot == 0) pad = '0';
-        while (pad_space > 0) {
-            if (write(1, &pad, 1) == -1) { free(num); return -1; }
-            count++;
+
+    // Hitung total panjang output
+    int total_len = print_sign + pad_zero + len;
+
+    // Hitung space padding dari width
+    if (fmt.width > total_len)
+        pad_space = fmt.width - total_len;
+
+    // Tentukan karakter padding
+    pad_char = ' ';
+    if (fmt.zero && !fmt.minus && !fmt.dot)
+        pad_char = '0';
+
+    // Right alignment (padding sebelum konten)
+    if (!fmt.minus)
+    {
+        // Jika padding dengan '0', cetak tanda dulu
+        if (pad_char == '0' && print_sign)
+        {
+            if (is_neg)
+                buffer[pos++] = '-';
+            else if (fmt.plus)
+                buffer[pos++] = '+';
+            else if (fmt.space)
+                buffer[pos++] = ' ';
+            print_sign = 0;
+        }
+
+        // Isi padding space/zero
+        while (pad_space > 0)
+        {
+            buffer[pos++] = pad_char;
             pad_space--;
         }
     }
-    // Cetak tanda
-    if (is_neg) {
-        if (write(1, "-", 1) == -1) { free(num); return -1; }
-        count++;
-    } else if (fmt.plus) {
-        if (write(1, "+", 1) == -1) { free(num); return -1; }
-        count++;
-    } else if (fmt.space) {
-        if (write(1, " ", 1) == -1) { free(num); return -1; }
-        count++;
+
+    // Cetak tanda jika belum dicetak
+    if (print_sign)
+    {
+        if (is_neg)
+            buffer[pos++] = '-';
+        else if (fmt.plus)
+            buffer[pos++] = '+';
+        else if (fmt.space)
+            buffer[pos++] = ' ';
     }
-    // Cetak zero padding (precision)
-    i = 0;
-    while (pad_zero > 0) {
-        if (write(1, "0", 1) == -1) { free(num); return -1; }
-        count++;
+
+    // Isi zero padding dari precision
+    while (pad_zero > 0)
+    {
+        buffer[pos++] = '0';
         pad_zero--;
     }
-    // Cetak digit (jika ada)
-    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0)) {
-        i = is_neg;
-        while (num[i]) {
-            if (write(1, &num[i], 1) == -1) { free(num); return -1; }
-            count++;
-            i++;
+
+    // Cetak digit (kecuali precision=0 dan n=0)
+    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0))
+    {
+        // Lewati tanda '-' jika ada
+        char *digits = num;
+        if (is_neg)
+            digits++;
+
+        // Salin digit ke buffer
+        while (*digits)
+        {
+            buffer[pos++] = *digits;
+            digits++;
         }
     }
-    // Cetak padding kanan jika left-aligned
-    if (fmt.minus) {
-        int left_pad = fmt.width - count;
-        while (left_pad > 0) {
-            if (write(1, " ", 1) == -1) { free(num); return -1; }
-            count++;
-            left_pad--;
+
+    // Left alignment (padding setelah konten)
+    if (fmt.minus)
+    {
+        while (pad_space > 0)
+        {
+            buffer[pos++] = ' ';
+            pad_space--;
         }
     }
+
     free(num);
-    return count;
+
+    // Tulis seluruh buffer sekaligus
+    if (write(1, buffer, pos) == -1)
+        return -1;
+
+    return pos;
 }
 
-/*
-** Mencetak unsigned integer dengan flag width, precision, dan alignment
-** Return: jumlah karakter yang dicetak
-*/
 int ft_print_unsigned(t_format fmt, unsigned int n)
 {
-    char *num;
-    int count = 0;      // Jumlah karakter yang dicetak
-    int len = 0;        // Panjang digit
-    int pad_zero = 0;   // Jumlah zero padding (precision)
+    char buffer[256];  // Buffer cukup untuk unsigned int terbesar
+    int pos = 0;       // Posisi penulisan dalam buffer
+    char *num;         // String hasil konversi
+    int len = 0;       // Panjang digit
+    int pad_zero = 0;  // Jumlah zero padding
+    int pad_space = 0; // Jumlah space padding
     int i;
-    num = ft_utoa(n); // Konversi ke string
+
+    // Konversi angka ke string
+    num = ft_utoa(n);
     if (!num)
         return -1;
+
+    // Hitung panjang digit
     i = 0;
     while (num[i])
         i++;
     len = i;
-    // Precision 0 dan n==0: tidak cetak digit
+
+    // Handle kasus precision 0 dan angka 0
     if (fmt.dot == 1 && fmt.precision == 0 && n == 0)
         len = 0;
-    // Hitung zero padding (precision)
+
+    // Hitung zero padding dari precision
     if (fmt.dot == 1 && fmt.precision > len)
         pad_zero = fmt.precision - len;
+
+    // Hitung total panjang output
     int total = pad_zero + len;
     if (len == 0)
         total = 0;
-    int pad_space = fmt.width - total;
-    if (pad_space < 0)
-        pad_space = 0;
-    // Cetak padding kiri jika right-aligned
-    if (!fmt.minus) {
-        char pad = ' ';
-        if (fmt.zero && fmt.dot == 0) pad = '0';
-        while (pad_space > 0) {
-            if (write(1, &pad, 1) == -1) { free(num); return -1; }
-            count++;
+
+    // Hitung space padding dari width
+    if (fmt.width > total)
+        pad_space = fmt.width - total;
+
+    // Tentukan karakter padding
+    char pad_char = ' ';
+    if (fmt.zero && fmt.dot == 0)
+        pad_char = '0';
+
+    // Right alignment (padding sebelum konten)
+    if (!fmt.minus && pad_space > 0)
+    {
+        // Isi buffer dengan padding karakter
+        while (pad_space > 0)
+        {
+            buffer[pos++] = pad_char;
             pad_space--;
         }
     }
-    // Cetak zero padding (precision)
-    i = 0;
-    while (pad_zero > 0) {
-        if (write(1, "0", 1) == -1) { free(num); return -1; }
-        count++;
+
+    // Isi zero padding dari precision
+    while (pad_zero > 0)
+    {
+        buffer[pos++] = '0';
         pad_zero--;
     }
-    // Cetak digit (jika ada)
-    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0)) {
+
+    // Cetak digit (kecuali precision=0 dan n=0)
+    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0))
+    {
+        // Salin digit ke buffer
         i = 0;
-        while (num[i]) {
-            if (write(1, &num[i], 1) == -1) { free(num); return -1; }
-            count++;
+        while (num[i])
+        {
+            buffer[pos++] = num[i];
             i++;
         }
     }
-    // Cetak padding kanan jika left-aligned
-    if (fmt.minus) {
-        int left_pad = fmt.width - count;
-        while (left_pad > 0) {
-            if (write(1, " ", 1) == -1) { free(num); return -1; }
-            count++;
-            left_pad--;
+
+    // Left alignment (padding setelah konten)
+    if (fmt.minus && pad_space > 0)
+    {
+        // Isi buffer dengan spasi
+        while (pad_space > 0)
+        {
+            buffer[pos++] = ' ';
+            pad_space--;
         }
     }
+
     free(num);
-    return count;
+
+    // Tulis seluruh buffer sekaligus
+    if (write(1, buffer, pos) == -1)
+        return -1;
+
+    return pos;
 }
 
-/*
-** Mencetak bilangan hexadecimal dengan flag #, width, precision, dan alignment
-** uppercase: 1 untuk huruf besar, 0 untuk huruf kecil
-** Return: jumlah karakter yang dicetak
-*/
 int ft_print_hex(t_format fmt, unsigned int n, int uppercase)
 {
-    char *hex;
-    int count = 0;      // Jumlah karakter yang dicetak
-    int len = 0;        // Panjang digit
-    int pad_zero = 0;   // Jumlah zero padding (precision)
-    int prefix = 0;     // Panjang prefix (0x/0X)
-    int i;
-    if (fmt.hash && n != 0)
-        prefix = 2;
-    hex = ft_xtoa(n, uppercase); // Konversi ke string hex
+    char buffer[256];  // Buffer cukup untuk hex panjang
+    int pos = 0;       // Posisi penulisan dalam buffer
+    char *hex;         // String hasil konversi hex
+    int prefix = 0;    // Flag prefix "0x"/"0X"
+    int pad_zero = 0;  // Jumlah zero padding
+    int pad_space = 0; // Jumlah space padding
+    int len = 0;       // Panjang digit hex
+    char pad_char;     // Karakter padding (' ' atau '0')
+
+    // Konversi angka ke string hex
+    hex = ft_xtoa(n, uppercase);
     if (!hex)
         return -1;
-    i = 0;
-    while (hex[i])
-        i++;
-    len = i;
-    // Precision 0 dan n==0: tidak cetak digit
+
+    // Hitung panjang digit hex
+    len = ft_strlen(hex);
+
+    // Handle kasus precision 0 dan angka 0
     if (fmt.dot == 1 && fmt.precision == 0 && n == 0)
         len = 0;
-    // Hitung zero padding (precision)
+
+    // Hitung zero padding dari precision
     if (fmt.dot == 1 && fmt.precision > len)
         pad_zero = fmt.precision - len;
-    int total = prefix + pad_zero + len;
-    if (len == 0)
-        total = prefix;
-    int pad_space = fmt.width - total;
-    if (pad_space < 0)
-        pad_space = 0;
-    // Cetak padding kiri jika right-aligned
-    if (!fmt.minus) {
-        char pad = ' ';
-        if (fmt.zero && fmt.dot == 0) pad = '0';
-        while (pad_space > 0) {
-            if (write(1, &pad, 1) == -1) { free(hex); return -1; }
-            count++;
+
+    // Tentukan perlu prefix "0x" atau "0X"
+    if (fmt.hash && n != 0)
+        prefix = 2;
+
+    // Hitung total panjang output
+    int total_len = prefix + pad_zero + len;
+
+    // Hitung space padding dari width
+    if (fmt.width > total_len)
+        pad_space = fmt.width - total_len;
+
+    // Tentukan karakter padding
+    pad_char = ' ';
+    if (fmt.zero && !fmt.minus && !fmt.dot)
+        pad_char = '0';
+
+    // Right alignment (padding sebelum konten)
+    if (!fmt.minus)
+    {
+        // Jika padding dengan '0', cetak prefix dulu
+        if (pad_char == '0' && prefix)
+        {
+            buffer[pos++] = '0';
+            if (uppercase)
+                buffer[pos++] = 'X';
+            else
+                buffer[pos++] = 'x';
+            prefix = 0;
+        }
+
+        // Isi padding space/zero
+        while (pad_space > 0)
+        {
+            buffer[pos++] = pad_char;
             pad_space--;
         }
     }
-    // Cetak prefix 0x/0X jika perlu
-    if (prefix) {
-        if (uppercase) {
-            if (write(1, "0X", 2) == -1) { free(hex); return -1; }
-        } else {
-            if (write(1, "0x", 2) == -1) { free(hex); return -1; }
-        }
-        count += 2;
+
+    // Cetak prefix jika belum dicetak
+    if (prefix)
+    {
+        buffer[pos++] = '0';
+        if (uppercase)
+            buffer[pos++] = 'X';
+        else
+            buffer[pos++] = 'x';
     }
-    // Cetak zero padding (precision)
-    i = 0;
-    while (pad_zero > 0) {
-        if (write(1, "0", 1) == -1) { free(hex); return -1; }
-        count++;
+
+    // Isi zero padding dari precision
+    while (pad_zero > 0)
+    {
+        buffer[pos++] = '0';
         pad_zero--;
     }
-    // Cetak digit (jika ada)
-    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0)) {
-        i = 0;
-        while (hex[i]) {
-            if (write(1, &hex[i], 1) == -1) { free(hex); return -1; }
-            count++;
+
+    // Cetak digit hex (kecuali precision=0 dan n=0)
+    if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0))
+    {
+        // Salin digit hex ke buffer
+        int i = 0;
+        while (hex[i])
+        {
+            buffer[pos++] = hex[i];
             i++;
         }
     }
-    // Cetak padding kanan jika left-aligned
-    if (fmt.minus) {
-        int left_pad = fmt.width - count;
-        while (left_pad > 0) {
-            if (write(1, " ", 1) == -1) { free(hex); return -1; }
-            count++;
-            left_pad--;
+
+    // Left alignment (padding setelah konten)
+    if (fmt.minus)
+    {
+        while (pad_space > 0)
+        {
+            buffer[pos++] = ' ';
+            pad_space--;
         }
     }
+
     free(hex);
-    return count;
+
+    // Tulis seluruh buffer sekaligus
+    if (write(1, buffer, pos) == -1)
+        return -1;
+
+    return pos;
 }
 
-/*
-** Mencetak tanda persen (%)
-** Return: jumlah karakter yang dicetak (1 jika sukses, -1 jika error)
-*/
+
 int ft_print_percent(t_format fmt)
 {
-    (void)fmt;
-    if (write(1, "%", 1) == -1)
-        return (-1);
-    return (1);
+	(void)fmt;
+	if (write(1, "%", 1) == -1)
+		return (-1);
+	return (1);
 }

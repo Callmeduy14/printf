@@ -1,63 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_conversion_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/17 20:47:53 by yyudi             #+#    #+#             */
+/*   Updated: 2025/07/20 13:43:15 by yyudi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_printf.h"
-
-/*
-** Mengecek apakah karakter adalah digit (0-9)
-** Return: 1 jika digit, 0 jika bukan
-*/
-int ft_isdigit(int c)
-{
-    return (c >= '0' && c <= '9');
-}
-
-/*
-** Menghitung panjang bilangan (termasuk tanda minus)
-** Return: jumlah digit (termasuk tanda jika negatif)
-*/
-static int ft_num_len(long n)
-{
-    int len;
-    len = 0;
-    if (n <= 0)
-        len++;
-    while (n != 0)
-    {
-        n /= 10;
-        len++;
-    }
-    return (len);
-}
-
-/*
-** Mengubah integer ke string (mirip itoa)
-** Return: pointer ke string hasil konversi (harus di-free)
-*/
-char *ft_itoa(int n)
-{
-    char    *str;
-    long    num;
-    int     len;
-    int     i;
-    num = n;
-    len = ft_num_len(num);
-    str = (char *)malloc(sizeof(char) * (len + 1));
-    if (str == NULL)
-        return (NULL);
-    if (num < 0)
-    {
-        str[0] = '-';
-        num = -num;
-    }
-    i = len - 1;
-    while (num >= 10)
-    {
-        str[i] = (num % 10) + '0';
-        num /= 10;
-        i--;
-    }
-    str[i] = num + '0';
-    str[len] = '\0';
-    return (str);
-}
 
 /*
 ** Menghitung panjang unsigned integer
@@ -140,15 +93,15 @@ char *ft_xtoa(unsigned long n, int uppercase)
     str = (char *)malloc(sizeof(char) * (len + 1));
     if (str == NULL)
         return (NULL);
-    i = len - 1;
+	str[len] = '\0';
     if (n == 0)
-        str[i] = '0';
+        str[0] = '0';
+	i = len - 1;
     while (n != 0)
     {
         str[i] = hex_chars[n % 16];
         n /= 16;
         i--;
     }
-    str[len] = '\0';
     return (str);
 }
