@@ -1,54 +1,79 @@
-# Nama library
-NAME = libftprintf.a
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/07/21 11:35:31 by yyudi             #+#    #+#              #
+#    Updated: 2025/07/21 11:35:44 by yyudi            ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-# Kompilator dan flags
-CC = cc
-CFLAGS = -Wall -Wextra -Werror
-AR = ar rcs
-RM = rm -f
+# Project
+NAME        := libftprintf.a
 
-# File sumber
-SRCS = ft_printf.c ft_parse_format.c ft_conversion_utils.c ft_printf_functions.c
+# Compiler
+CC          := cc
+CFLAGS      := -Wall -Wextra -Werror
+AR          := ar rcs
+RM          := rm -f
 
-BSRC = ft_printf_bonus.c
+# Directories
+LIBFT_DIR   := ./libft
 
-# File objek
-OBJS = $(SRCS:.c=.o)
+# Source files
+SRCS        := ft_printf.c ft_parse_format.c ft_conversion_utils.c \
+               ft_printf_percent.c ft_printf_char.c ft_printf_hex.c \
+               ft_printf_pointer.c ft_printf_string.c ft_printf_unsigned.c \
+               ft_printf_integer.c
 
-OBJS_B = $(BSRC:.c=.o)
+BONUS_SRCS  := ft_printf_bonus.c
 
-LIBFT_PATH	=	./libft
-LIBFT		=	$(LIBFT_PATH)/libft.a
+# Objects
+OBJS        := $(SRCS:%.c=%.o)
+BONUS_OBJS  := $(BONUS_SRCS:%.c=%.o)
 
-# Aturan default
+# Libft
+LIBFT       := $(LIBFT_DIR)/libft.a
+
+# Default build (non-bonus)
 all: $(NAME)
 
-# Kompilasi library
+# Main library build
 $(NAME): $(LIBFT) $(OBJS)
-	cp	$(LIBFT) $(NAME)
-	$(AR) $(NAME) $(OBJS)
+	@cp $(LIBFT) $(NAME)
+	@$(AR) $(NAME) $(OBJS)
+	@echo "$(NAME) compiled successfully!"
 
+# Bonus build
+bonus: $(LIBFT) $(OBJS) $(BONUS_OBJS)
+	@cp $(LIBFT) $(NAME)
+	@$(AR) $(NAME) $(OBJS) $(BONUS_OBJS)
+	@echo "$(NAME) with bonus compiled successfully!"
+
+# Libft compilation
 $(LIBFT):
-		make -C $(LIBFT_PATH) all
-# Aturan untuk kompilasi file objek
-bonus: $(LIBFT) $(OBJS) $(OBJS_B)
-	cp	$(LIBFT) $(NAME)
-	$(AR) $(NAME) $(OBJS) $(OBJS_B)
+	@make -C $(LIBFT_DIR) all
 
+# Compile .c to .o
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled $<"
 
-# Membersihkan file objek
+# Clean object files
 clean:
-	$(RM) $(OBJS)
-	$(RM) $(OBJS_B)
+	@$(RM) $(OBJS) $(BONUS_OBJS)
+	@make -C $(LIBFT_DIR) clean
+	@echo "Object files cleaned!"
 
-# Membersihkan file objek dan library
+# Full clean (objects + library)
 fclean: clean
-	$(RM) $(NAME)
-	make -C $(LIBFT_PATH) fclean
+	@$(RM) $(NAME)
+	@make -C $(LIBFT_DIR) fclean
+	@echo "Full clean completed!"
 
-# Kompilasi ulang
+# Rebuild
 re: fclean all
 
 # Phony targets

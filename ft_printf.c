@@ -7,9 +7,9 @@
 */
 int ft_printf(const char *format, ...)
 {
-	va_list	 args;   // Variadic argument list untuk ambil argumen variabel
-	int		 count;  // Jumlah total karakter yang sudah dicetak
-	int		 temp;   // Jumlah karakter yang dicetak untuk satu format spesifik
+	va_list	args;   // Variadic argument list untuk ambil argumen variabel
+	int		count;  // Jumlah total karakter yang sudah dicetak
+	int		temp;   // Jumlah karakter yang dicetak untuk satu format spesifik
 	t_format	fmt;	// Struct untuk menyimpan info parsing format spesifier
 
 	// Jika string format NULL, return error (-1)

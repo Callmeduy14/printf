@@ -6,7 +6,7 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/20 13:44:49 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/20 13:44:50 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 11:00:50 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@
 // format: string format seperti printf biasa
 // ...: argumen variadik
 // Return: jumlah karakter yang dicetak, atau -1 jika error
-int ft_printf_bonus(const char *format, ...)
+int	ft_printf_bonus(const char *format, ...)
 {
-	va_list	 args;   // Menyimpan argumen variadik
-	int		 count;  // Total karakter yang dicetak
-	int		 temp;   // Menyimpan hasil cetak per format
+	va_list	args;   // Menyimpan argumen variadik
+	int		count;  // Total karakter yang dicetak
+	int		temp;   // Menyimpan hasil cetak per format
 	t_format	fmt;	// Struktur untuk menyimpan parsing format
 
 	// Jika format NULL, return error
