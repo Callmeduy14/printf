@@ -6,19 +6,16 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/20 13:44:22 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 11:00:31 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 14:12:06 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-/*
-** Inisialisasi struct format dengan nilai default
-** Semua flag di-set ke 0, precision ke -1, type ke 0
-*/
 static t_format	ft_init_format(void)
 {
 	t_format	fmt;
+
 	fmt.minus = 0;
 	fmt.zero = 0;
 	fmt.width = 0;
@@ -30,15 +27,11 @@ static t_format	ft_init_format(void)
 	fmt.type = 0;
 	return (fmt);
 }
-/*
-** Mengurai flags (-, 0, #, +, spasi) dari format string
-** Mengupdate struct fmt sesuai flag yang ditemukan
-*/
-static void ft_parse_flags(const char **format, t_format *fmt)
+
+static void	ft_parse_flags(const char **format, t_format *fmt)
 {
-	// Loop selama karakter adalah flag
-	while (**format == '-' || **format == '0' || **format == '#' ||
-			**format == '+' || **format == ' ')
+	while (**format == '-' || **format == '0' || **format == '#'
+		|| **format == '+' || **format == ' ')
 	{
 		if (**format == '-')
 			fmt->minus = 1;
@@ -50,13 +43,10 @@ static void ft_parse_flags(const char **format, t_format *fmt)
 			fmt->plus = 1;
 		else if (**format == ' ')
 			fmt->space = 1;
-		(*format)++; // Geser pointer ke karakter berikutnya
+		(*format)++;
 	}
 }
-/*
-** Mengurai width (angka atau *) dari format string
-** Jika width berupa '*', ambil dari argumen variadic
-*/
+
 static void	ft_parse_width(const char **format, t_format *fmt, va_list args)
 {
 	if (**format == '*')
@@ -79,10 +69,7 @@ static void	ft_parse_width(const char **format, t_format *fmt, va_list args)
 		}
 	}
 }
-/*
-** Mengurai precision (.angka atau .*) dari format string
-** Jika precision berupa '*', ambil dari argumen variadic
-*/
+
 static void	ft_parse_precision(const char **format, t_format *fmt, va_list args)
 {
 	if (**format == '.')
@@ -106,18 +93,15 @@ static void	ft_parse_precision(const char **format, t_format *fmt, va_list args)
 	}
 }
 
-/*
-** Fungsi utama untuk mengurai format
-** Mengembalikan struct t_format hasil parsing flag, width, precision, dan type
-*/
 t_format	ft_parse_format(const char **format, va_list args)
 {
 	t_format	fmt;
-	fmt = ft_init_format(); // Set default
-	ft_parse_flags(format, &fmt); // Parse flag
-	ft_parse_width(format, &fmt, args); // Parse width
-	ft_parse_precision(format, &fmt, args); // Parse precision
-	fmt.type = **format; // Ambil type (c, s, d, i, u, x, X, p, %)
+
+	fmt = ft_init_format();
+	ft_parse_flags(format, &fmt);
+	ft_parse_width(format, &fmt, args);
+	ft_parse_precision(format, &fmt, args);
+	fmt.type = **format;
 	(*format)++;
 	return (fmt);
 }

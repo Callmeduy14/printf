@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/21 20:30:49 by yyudi             #+#    #+#             */
+/*   Updated: 2025/07/21 20:30:50 by yyudi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef FT_PRINTF_H
 # define FT_PRINTF_H
 
@@ -27,6 +39,16 @@ typedef struct s_format
 	char	type;	// Tipe konversi (c, s, p, d, i, u, x, X, %)
 }			t_format;
 
+typedef struct s_intvars {
+	int		is_neg;
+	int		len;
+	int		print_sign;
+	int		pad_zero;
+	int		pad_space;
+	char	pad_char;
+	int		pos;
+}	t_intvars;
+
 // Prototipe fungsi utama
 int			ft_printf(const char *format, ...);
 int			ft_printf_bonus(const char *format, ...);
@@ -41,7 +63,7 @@ int			ft_print_string(t_format fmt, char *str);
 int			ft_print_pointer(t_format fmt, unsigned long ptr);
 int			ft_print_int(t_format fmt, int n);
 int			ft_print_unsigned(t_format fmt, unsigned int n);
-int			ft_print_hex(t_format fmt, unsigned int n, int uppercase);
+int			ft_print_hex(t_format fmt, unsigned int n);
 int			ft_print_percent(t_format fmt);
 int			ft_print_pointer_hex(unsigned long n);
 

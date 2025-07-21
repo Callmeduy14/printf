@@ -6,67 +6,72 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 10:32:29 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 11:14:13 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 17:32:01 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	ft_print_string(t_format fmt, char *str)
+static char	*handle_null_string(char *str, const char *nullstr)
 {
-	char	buffer[1024]; // Buffer cukup besar untuk string panjang
-	int	pos;	   // Posisi penulisan dalam buffer
-	const char	*nullstr = "(null)";
-	int	print_len;	 // Panjang string yang akan dicetak
-	int	pad_space;	 // Jumlah padding yang dibutuhkan
-
-	pos = 0;
-	// Handle string NULL
 	if (!str)
-		str = (char *)nullstr;
+		return ((char *)nullstr);
+	return (str);
+}
 
-	// Hitung panjang string
-	print_len = ft_strlen(str);
+static int	calculate_padding(t_format fmt, int print_len)
+{
+	int	pad_space;
 
-	// Apply precision jika ada
-	if (fmt.dot == 1 && fmt.precision >= 0 && fmt.precision < print_len)
-		print_len = fmt.precision;
-
-	// Hitung padding space
 	pad_space = fmt.width - print_len;
 	if (pad_space < 0)
 		pad_space = 0;
+	return (pad_space);
+}
 
-	// Right alignment (padding sebelum string)
+static void	fill_buffer(char *buffer, t_format fmt, char *str, int print_len)
+{
+	int	pos;
+	int	pad_space;
+
+	pos = 0;
+	pad_space = calculate_padding(fmt, print_len);
 	if (!fmt.minus && pad_space > 0)
 	{
-		// Isi buffer dengan spasi
 		while (pos < pad_space)
 		{
 			buffer[pos] = ' ';
 			pos++;
 		}
 	}
-
-	// Salin string ke buffer
 	ft_memcpy(buffer + pos, str, print_len);
 	pos += print_len;
-
-	// Left alignment (padding setelah string)
 	if (fmt.minus && pad_space > 0)
 	{
-		// Isi buffer dengan spasi
 		while (pos < fmt.width)
 		{
 			buffer[pos] = ' ';
 			pos++;
 		}
 	}
-
-	// Tulis seluruh buffer sekaligus
-	if (write(1, buffer, pos) == -1)
-		return (-1);
-
-	return (pos);
 }
 
+int	ft_print_string(t_format fmt, char *str)
+{
+	char		buffer[1024];
+	const char	*nullstr;
+	int		print_len;
+	int		total_len;
+	char		*processed_str;
+
+	nullstr = "(null)";
+	processed_str = handle_null_string(str, nullstr);
+	print_len = ft_strlen(processed_str);
+	if (fmt.dot == 1 && fmt.precision >= 0 && fmt.precision < print_len)
+		print_len = fmt.precision;
+	fill_buffer(buffer, fmt, processed_str, print_len);
+	total_len = calculate_padding(fmt, print_len) + print_len;
+	if (write(1, buffer, total_len) == -1)
+		return (-1);
+	return (total_len);
+}

@@ -6,7 +6,7 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 20:47:53 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 10:50:20 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 14:07:42 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 static int	ft_unsigned_len(unsigned int n)
 {
 	int	len;
+
 	len = 0;
 	if (n == 0)
 		return (1);
@@ -37,8 +38,9 @@ static int	ft_unsigned_len(unsigned int n)
 char	*ft_utoa(unsigned int n)
 {
 	char	*str;
-	int	len;
-	int	i;
+	int		len;
+	int		i;
+
 	len = ft_unsigned_len(n);
 	str = (char *)malloc(sizeof(char) * (len + 1));
 	if (str == NULL)
@@ -63,6 +65,7 @@ char	*ft_utoa(unsigned int n)
 static int	ft_hex_len(unsigned long n)
 {
 	int	len;
+
 	len = 0;
 	if (n == 0)
 		return (1);
@@ -82,9 +85,10 @@ static int	ft_hex_len(unsigned long n)
 char	*ft_xtoa(unsigned long n, int uppercase)
 {
 	char	*str;
-	int	len;
-	int	i;
+	int		len;
+	int		i;
 	char	*hex_chars;
+
 	if (uppercase)
 		hex_chars = "0123456789ABCDEF";
 	else

@@ -6,107 +6,88 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 10:34:00 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 11:21:17 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 20:58:22 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	ft_print_unsigned(t_format fmt, unsigned int n)
+static int	calculate_paddings(t_format fmt, int len, unsigned int n,
+				int *paddings)
 {
-	char buffer[256];  // Buffer cukup untuk unsigned int terbesar
-	int pos;	   // Posisi penulisan dalam buffer
-	char *num;		 // String hasil konversi
-	int len;	   // Panjang digit
-	int pad_zero;  // Jumlah zero padding
-	int pad_space; // Jumlah space padding
-	int i;
-	char	pad_char;
-	int total;
+	int	total;
 
-	pos = 0;
-	len = 0;
-	pad_zero = 0;
-	pad_space = 0;
-	// Konversi angka ke string
-	num = ft_utoa(n);
-	if (!num)
-		return (-1);
-
-	// Hitung panjang digit
-	i = 0;
-	while (num[i])
-		i++;
-	len = i;
-
-	// Handle kasus precision 0 dan angka 0
 	if (fmt.dot == 1 && fmt.precision == 0 && n == 0)
 		len = 0;
-
-	// Hitung zero padding dari precision
 	if (fmt.dot == 1 && fmt.precision > len)
-		pad_zero = fmt.precision - len;
-
-	// Hitung total panjang output
-	total = pad_zero + len;
+		paddings[0] = fmt.precision - len;
+	total = paddings[0] + len;
 	if (len == 0)
 		total = 0;
-
-	// Hitung space padding dari width
 	if (fmt.width > total)
-		pad_space = fmt.width - total;
+		paddings[1] = fmt.width - total;
+	return (total);
+}
 
-	// Tentukan karakter padding
+static void	handle_padding(char *buffer, int *pos, int pad, char c)
+{
+	while (pad > 0)
+	{
+		buffer[(*pos)++] = c;
+		pad--;
+	}
+}
+
+static char	get_pad_char(t_format fmt)
+{
+	char	pad_char;
+
 	pad_char = ' ';
 	if (fmt.zero && fmt.dot == 0)
 		pad_char = '0';
+	return (pad_char);
+}
 
-	// Right alignment (padding sebelum konten)
-	if (!fmt.minus && pad_space > 0)
-	{
-		// Isi buffer dengan padding karakter
-		while (pad_space > 0)
-		{
-			buffer[pos++] = pad_char;
-			pad_space--;
-		}
-	}
+static void	handle_number(char *buffer, int *pos, char *num, t_format fmt)
+{
+	int	i;
 
-	// Isi zero padding dari precision
-	while (pad_zero > 0)
+	i = 0;
+	if (!(fmt.dot == 1 && fmt.precision == 0 && ft_atoi(num) == 0))
 	{
-		buffer[pos++] = '0';
-		pad_zero--;
-	}
-
-	// Cetak digit (kecuali precision=0 dan n=0)
-	if (!(fmt.dot == 1 && fmt.precision == 0 && n == 0))
-	{
-		// Salin digit ke buffer
-		i = 0;
 		while (num[i])
 		{
-			buffer[pos++] = num[i];
+			buffer[(*pos)++] = num[i];
 			i++;
 		}
 	}
+}
 
-	// Left alignment (padding setelah konten)
-	if (fmt.minus && pad_space > 0)
-	{
-		// Isi buffer dengan spasi
-		while (pad_space > 0)
-		{
-			buffer[pos++] = ' ';
-			pad_space--;
-		}
-	}
+int	ft_print_unsigned(t_format fmt, unsigned int n)
+{
+	char	buffer[256];
+	int		pos;
+	char	*num;
+	int		paddings[2];
+	int		total;
+	char	pad_char;
 
+	pos = 0;
+	paddings[0] = 0;
+	paddings[1] = 0;
+	num = ft_utoa(n);
+	if (!num)
+		return (-1);
+	total = calculate_paddings(fmt, ft_strlen(num), n, paddings);
+	pad_char = get_pad_char(fmt);
+	if (!fmt.minus && paddings[1] > 0)
+		handle_padding(buffer, &pos, paddings[1], pad_char);
+	handle_padding(buffer, &pos, paddings[0], '0');
+	handle_number(buffer, &pos, num, fmt);
+	if (fmt.minus && paddings[1] > 0)
+		handle_padding(buffer, &pos, paddings[1], ' ');
 	free(num);
-
-	// Tulis seluruh buffer sekaligus
 	if (write(1, buffer, pos) == -1)
-		return -1;
-
+		return (-1);
 	return (pos);
 }

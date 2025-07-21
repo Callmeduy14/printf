@@ -6,57 +6,57 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/20 13:44:49 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 11:00:50 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/21 14:16:48 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 #include <stdarg.h>
 
-// Fungsi utama ft_printf_bonus: versi bonus dari ft_printf yang mendukung flag tambahan
-// format: string format seperti printf biasa
-// ...: argumen variadik
-// Return: jumlah karakter yang dicetak, atau -1 jika error
-int	ft_printf_bonus(const char *format, ...)
-{
-	va_list	args;   // Menyimpan argumen variadik
-	int		count;  // Total karakter yang dicetak
-	int		temp;   // Menyimpan hasil cetak per format
-	t_format	fmt;	// Struktur untuk menyimpan parsing format
 
-	// Jika format NULL, return error
-	if (format == NULL)
+static int print_char(char c, int *count)
+{
+	if (write(1, &c, 1) == -1)
 		return (-1);
-	va_start(args, format); // Inisialisasi argumen variadik
+	(*count)++;
+	return (0);
+}
+
+static int process_format(const char **fmt, va_list args, int *count)
+{
+	t_format	f;
+	int		 chars_printed;
+
+	f = ft_parse_format(fmt, args);
+	chars_printed = ft_handle_format(args, f);
+	if (chars_printed == -1)
+		return (-1);
+	*count += chars_printed;
+	return (0);
+}
+
+
+int ft_printf_bonus(const char *format, ...)
+{
+	va_list	args;
+	int		count;
+
 	count = 0;
-	while (*format != '\0') // Iterasi setiap karakter format
+	if (!format)
+		return (-1);
+
+	va_start(args, format);
+	while (*format)
 	{
-		if (*format == '%') // Jika menemukan '%', berarti ada format spesial
+		if (*format == '%')
 		{
 			format++;
-			// Parsing flag, width, precision, dsb ke struct fmt
-			fmt = ft_parse_format(&format, args);
-			// Handle konversi dan cetak sesuai format, simpan jumlah karakter
-			temp = ft_handle_format(args, fmt);
-			if (temp == -1)
-			{
-				va_end(args); // Error: tutup argumen variadik
-				return (-1);
-			}
-			count += temp; // Tambah jumlah karakter yang dicetak
+			if (process_format(&format, args, &count) == -1)
+				break ;
 		}
-		else
-		{
-			// Jika bukan '%', cetak karakter biasa
-			if (write(1, format, 1) == -1)
-			{
-				va_end(args);
-				return (-1);
-			}
-			count++;
-			format++;
-		}
+		else if (print_char(*format++, &count) == -1)
+			break ;
 	}
-	va_end(args); // Tutup argumen variadik
-	return (count); // Return total karakter yang dicetak
+	va_end(args);
+	return (count);
 }
