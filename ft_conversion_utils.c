@@ -22,13 +22,13 @@ static int	ft_unsigned_len(unsigned int n)
 
 	len = 0;
 	if (n == 0)
-		return (1);
+		return (1); // Jika 0, panjang 1
 	while (n != 0)
 	{
-		n /= 10;
-		len++;
+		n /= 10; // Bagi 10 untuk mengurangi digit
+		len++;   // Tambah jumlah digit
 	}
-	return (len);
+	return (len); // Return jumlah digit
 }
 
 /*
@@ -37,25 +37,25 @@ static int	ft_unsigned_len(unsigned int n)
 */
 char	*ft_utoa(unsigned int n)
 {
-	char	*str;
-	int		len;
-	int		i;
+	char	*str; // Buffer hasil konversi
+	int		len; // Panjang digit
+	int		i;   // Indeks
 
-	len = ft_unsigned_len(n);
-	str = (char *)malloc(sizeof(char) * (len + 1));
+	len = ft_unsigned_len(n); // Hitung panjang digit
+	str = (char *)malloc(sizeof(char) * (len + 1)); // Alokasi buffer
 	if (str == NULL)
-		return (NULL);
+		return (NULL); // Jika gagal alokasi
 	i = len - 1;
 	if (n == 0)
-		str[i] = '0';
+		str[i] = '0'; // Jika 0, isi '0'
 	while (n != 0)
 	{
-		str[i] = (n % 10) + '0';
+		str[i] = (n % 10) + '0'; // Ambil digit terakhir
 		n /= 10;
 		i--;
 	}
-	str[len] = '\0';
-	return (str);
+	str[len] = '\0'; // Null-terminate
+	return (str); // Return string hasil konversi
 }
 
 /*
@@ -68,13 +68,13 @@ static int	ft_hex_len(unsigned long n)
 
 	len = 0;
 	if (n == 0)
-		return (1);
+		return (1); // Jika 0, panjang 1
 	while (n != 0)
 	{
-		n /= 16;
-		len++;
+		n /= 16; // Bagi 16 untuk mengurangi digit
+		len++;   // Tambah jumlah digit
 	}
-	return (len);
+	return (len); // Return jumlah digit
 }
 
 /*
@@ -84,28 +84,28 @@ static int	ft_hex_len(unsigned long n)
 */
 char	*ft_xtoa(unsigned long n, int uppercase)
 {
-	char	*str;
-	int		len;
-	int		i;
-	char	*hex_chars;
+	char	*str;      // Buffer hasil konversi
+	int		len;      // Panjang digit
+	int		i;        // Indeks
+	char	*hex_chars;// Karakter hex
 
 	if (uppercase)
-		hex_chars = "0123456789ABCDEF";
+		hex_chars = "0123456789ABCDEF"; // Huruf besar
 	else
-		hex_chars = "0123456789abcdef";
-	len = ft_hex_len(n);
-	str = (char *)malloc(sizeof(char) * (len + 1));
+		hex_chars = "0123456789abcdef"; // Huruf kecil
+	len = ft_hex_len(n); // Hitung panjang digit
+	str = (char *)malloc(sizeof(char) * (len + 1)); // Alokasi buffer
 	if (str == NULL)
-		return (NULL);
-	str[len] = '\0';
+		return (NULL); // Jika gagal alokasi
+	str[len] = '\0'; // Null-terminate
 	if (n == 0)
-		str[0] = '0';
+		str[0] = '0'; // Jika 0, isi '0'
 	i = len - 1;
 	while (n != 0)
 	{
-		str[i] = hex_chars[n % 16];
+		str[i] = hex_chars[n % 16]; // Ambil digit hex terakhir
 		n /= 16;
 		i--;
 	}
-	return (str);
+	return (str); // Return string hasil konversi
 }

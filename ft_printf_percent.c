@@ -12,11 +12,12 @@
 
 #include "ft_printf.h"
 
+// Fungsi untuk mencetak karakter '%' ke layar
 int	ft_print_percent(t_format fmt)
 {
-	(void)fmt;
-	if (write(1, "%", 1) == -1)
+	(void)fmt; // Abaikan parameter format karena tidak digunakan
+	if (write(1, "%", 1) == -1) // Tulis karakter '%' ke layar, jika gagal return -1
 		return (-1);
-	return (1);
+	return (1); // Return jumlah karakter yang dicetak (1)
 }
 
