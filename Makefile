@@ -6,36 +6,36 @@
 #    By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/21 11:35:31 by yyudi             #+#    #+#              #
-#    Updated: 2025/07/21 11:35:44 by yyudi            ###   ########.fr        #
+#    Updated: 2025/07/22 10:35:57 by yyudi            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # Project
-NAME        := libftprintf.a
+NAME		:= libftprintf.a
 
 # Compiler
-CC          := cc
-CFLAGS      := -Wall -Wextra -Werror
-AR          := ar rcs
-RM          := rm -f
+CC			:= cc
+CFLAGS		:= -Wall -Wextra -Werror
+AR			:= ar rcs
+RM			:= rm -f
 
 # Directories
-LIBFT_DIR   := ./libft
+LIBFT_DIR	:= ./libft
 
 # Source files
-SRCS        := ft_printf.c ft_parse_format.c ft_conversion_utils.c \
-               ft_printf_percent.c ft_printf_char.c ft_printf_hex.c \
-               ft_printf_pointer.c ft_printf_string.c ft_printf_unsigned.c \
-               ft_printf_integer.c
+SRCS		:= ft_printf.c ft_parse_format.c ft_conversion_utils.c \
+				ft_printf_percent.c ft_printf_char.c ft_printf_hex.c \
+				ft_printf_pointer.c ft_printf_string.c ft_printf_unsigned.c \
+				ft_printf_integer.c
 
-BONUS_SRCS  := ft_printf_bonus.c
+BONUS_SRCS	:= ft_printf_bonus.c
 
 # Objects
-OBJS        := $(SRCS:%.c=%.o)
-BONUS_OBJS  := $(BONUS_SRCS:%.c=%.o)
+OBJS		:= $(SRCS:%.c=%.o)
+BONUS_OBJS	:= $(BONUS_SRCS:%.c=%.o)
 
 # Libft
-LIBFT       := $(LIBFT_DIR)/libft.a
+LIBFT		:= $(LIBFT_DIR)/libft.a
 
 # Default build (non-bonus)
 all: $(NAME)

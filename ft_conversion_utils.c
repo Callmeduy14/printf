@@ -6,106 +6,89 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/17 20:47:53 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/21 14:07:42 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/23 12:56:28 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-/*
-** Menghitung panjang unsigned integer
-** Return: jumlah digit
-*/
 static int	ft_unsigned_len(unsigned int n)
 {
 	int	len;
 
 	len = 0;
 	if (n == 0)
-		return (1); // Jika 0, panjang 1
+		return (1);
 	while (n != 0)
 	{
-		n /= 10; // Bagi 10 untuk mengurangi digit
-		len++;   // Tambah jumlah digit
+		n /= 10;
+		len++;
 	}
-	return (len); // Return jumlah digit
+	return (len);
 }
 
-/*
-** Mengubah unsigned integer ke string
-** Return: pointer ke string hasil konversi (harus di-free)
-*/
 char	*ft_utoa(unsigned int n)
 {
-	char	*str; // Buffer hasil konversi
-	int		len; // Panjang digit
-	int		i;   // Indeks
+	char	*str;
+	int		len;
+	int		i;
 
-	len = ft_unsigned_len(n); // Hitung panjang digit
-	str = (char *)malloc(sizeof(char) * (len + 1)); // Alokasi buffer
+	len = ft_unsigned_len(n);
+	str = (char *)malloc(sizeof(char) * (len + 1));
 	if (str == NULL)
-		return (NULL); // Jika gagal alokasi
+		return (NULL);
 	i = len - 1;
 	if (n == 0)
-		str[i] = '0'; // Jika 0, isi '0'
+		str[i] = '0';
 	while (n != 0)
 	{
-		str[i] = (n % 10) + '0'; // Ambil digit terakhir
+		str[i] = (n % 10) + '0';
 		n /= 10;
 		i--;
 	}
-	str[len] = '\0'; // Null-terminate
-	return (str); // Return string hasil konversi
+	str[len] = '\0';
+	return (str);
 }
 
-/*
-** Menghitung panjang bilangan hexadecimal
-** Return: jumlah digit hex
-*/
 static int	ft_hex_len(unsigned long n)
 {
 	int	len;
 
 	len = 0;
 	if (n == 0)
-		return (1); // Jika 0, panjang 1
+		return (1);
 	while (n != 0)
 	{
-		n /= 16; // Bagi 16 untuk mengurangi digit
-		len++;   // Tambah jumlah digit
+		n /= 16;
+		len++;
 	}
-	return (len); // Return jumlah digit
+	return (len);
 }
 
-/*
-** Mengubah bilangan ke string hexadecimal
-** uppercase: 1 untuk huruf besar, 0 untuk huruf kecil
-** Return: pointer ke string hasil konversi (harus di-free)
-*/
 char	*ft_xtoa(unsigned long n, int uppercase)
 {
-	char	*str;      // Buffer hasil konversi
-	int		len;      // Panjang digit
-	int		i;        // Indeks
-	char	*hex_chars;// Karakter hex
+	char	*str;
+	int		len;
+	int		i;
+	char	*hex_chars;
 
 	if (uppercase)
-		hex_chars = "0123456789ABCDEF"; // Huruf besar
+		hex_chars = "0123456789ABCDEF";
 	else
-		hex_chars = "0123456789abcdef"; // Huruf kecil
-	len = ft_hex_len(n); // Hitung panjang digit
-	str = (char *)malloc(sizeof(char) * (len + 1)); // Alokasi buffer
+		hex_chars = "0123456789abcdef";
+	len = ft_hex_len(n);
+	str = (char *)malloc(sizeof(char) * (len + 1));
 	if (str == NULL)
-		return (NULL); // Jika gagal alokasi
-	str[len] = '\0'; // Null-terminate
+		return (NULL);
+	str[len] = '\0';
 	if (n == 0)
-		str[0] = '0'; // Jika 0, isi '0'
+		str[0] = '0';
 	i = len - 1;
 	while (n != 0)
 	{
-		str[i] = hex_chars[n % 16]; // Ambil digit hex terakhir
+		str[i] = hex_chars[n % 16];
 		n /= 16;
 		i--;
 	}
-	return (str); // Return string hasil konversi
+	return (str);
 }
