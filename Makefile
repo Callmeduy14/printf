@@ -6,7 +6,7 @@
 #    By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/21 11:35:31 by yyudi             #+#    #+#              #
-#    Updated: 2025/07/22 10:35:57 by yyudi            ###   ########.fr        #
+#    Updated: 2025/07/23 21:26:14 by yyudi            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,9 +24,9 @@ LIBFT_DIR	:= ./libft
 
 # Source files
 SRCS		:= ft_printf.c ft_parse_format.c ft_conversion_utils.c \
-				ft_printf_percent.c ft_printf_char.c ft_printf_hex.c \
+				ft_sign.c ft_printf_char.c ft_printf_hex.c \
 				ft_printf_pointer.c ft_printf_string.c ft_printf_unsigned.c \
-				ft_printf_integer.c
+				ft_printf_integer.c ft_padding.c ft_variables.c
 
 BONUS_SRCS	:= ft_printf_bonus.c
 

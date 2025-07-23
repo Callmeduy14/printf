@@ -6,38 +6,65 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 10:29:59 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/22 10:59:28 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/23 22:08:13 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-static void	fill_padding(char *buffer, int *pos, int padding, char pad_char)
+int	write_padding(int count, char c)
 {
-	while (*pos < padding)
+	int	written;
+	int	total;
+
+	total = 0;
+	while (count > 0)
 	{
-		buffer[*pos] = pad_char;
-		(*pos)++;
+		written = write(1, &c, 1);
+		if (written == -1)
+			return (-1);
+		total += written;
+		count--;
 	}
+	return (total);
+}
+
+static int	handle_padding(t_format fmt, int padding)
+{
+	int		total;
+	char	pad_char;
+
+	total = 0;
+	pad_char = ' ';
+	if (fmt.zero)
+		pad_char = '0';
+	if (padding > 0)
+	{
+		if (!fmt.minus)
+			total = write_padding(padding, pad_char);
+	}
+	return (total);
 }
 
 int	ft_print_char(t_format fmt, int c)
 {
-	char	buffer[256];
-	int		pos;
-	int		padding;
+	int	total;
+	int	padding;
 
-	pos = 0;
-	padding = 0;
-	if (fmt.width > 1)
-		padding = fmt.width - 1;
-	if (!fmt.minus && padding > 0)
-		fill_padding(buffer, &pos, padding, ' ');
-	buffer[pos] = (char)c;
-	pos++;
-	if (fmt.minus && padding > 0)
-		fill_padding(buffer, &pos, fmt.width, ' ');
-	if (write(1, buffer, pos) == -1)
+	total = 0;
+	padding = fmt.width - 1;
+	if (padding > 0)
+		total = handle_padding(fmt, padding);
+	if (total == -1)
 		return (-1);
-	return (pos);
+	if (write(1, &c, 1) == -1)
+		return (-1);
+	total += 1;
+	if (fmt.minus && padding > 0)
+	{
+		if (write_padding(padding, ' ') == -1)
+			return (-1);
+		total += padding;
+	}
+	return (total);
 }
