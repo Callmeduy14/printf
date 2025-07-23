@@ -6,7 +6,7 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 20:30:49 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/23 13:59:10 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/23 20:33:16 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,16 @@ int			ft_printf_bonus(const char *format, ...);
 
 t_format	ft_parse_format(const char **format, va_list args);
 int			ft_handle_format(va_list args, t_format fmt);
+
+int	calculate_unsigned_padding(t_format fmt, int len,
+		unsigned int n, int *paddings);
+int	calculate_hex_padding(t_format *fmt, t_intvars *v,
+		unsigned int n);
+static int	calculate_string_padding(t_format fmt, int print_len);
+
+static void	init_int_vars(int n, t_format fmt, t_intvars *v, char *num);
+static void	init_hex_vars(t_format *fmt, unsigned int n,
+	t_intvars *v, char **hex);
 
 int			ft_print_char(t_format fmt, int c);
 int			ft_print_string(t_format fmt, char *str);

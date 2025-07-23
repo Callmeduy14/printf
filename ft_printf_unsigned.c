@@ -6,28 +6,11 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 10:34:00 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/22 10:52:29 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/23 20:27:07 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-
-static int	calculate_paddings(t_format fmt, int len, unsigned int n,
-				int *paddings)
-{
-	int	total;
-
-	if (fmt.dot == 1 && fmt.precision == 0 && n == 0)
-		len = 0;
-	if (fmt.dot == 1 && fmt.precision > len)
-		paddings[0] = fmt.precision - len;
-	total = paddings[0] + len;
-	if (len == 0)
-		total = 0;
-	if (fmt.width > total)
-		paddings[1] = fmt.width - total;
-	return (total);
-}
 
 static void	handle_padding(char *buffer, int *pos, int pad, char c)
 {
@@ -77,7 +60,7 @@ int	ft_print_unsigned(t_format fmt, unsigned int n)
 	num = ft_utoa(n);
 	if (!num)
 		return (-1);
-	calculate_paddings(fmt, ft_strlen(num), n, paddings);
+	calculate_unsigned_padding(fmt, ft_strlen(num), n, paddings);
 	pad_char = get_pad_char(fmt);
 	if (!fmt.minus && paddings[1] > 0)
 		handle_padding(buffer, &pos, paddings[1], pad_char);

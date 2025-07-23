@@ -6,7 +6,7 @@
 /*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/21 10:32:29 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/22 11:14:34 by yyudi            ###   ########.fr       */
+/*   Updated: 2025/07/23 20:32:56 by yyudi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,13 @@ static char	*handle_null_string(char *str, const char *nullstr)
 	return (str);
 }
 
-static int	calculate_padding(t_format fmt, int print_len)
-{
-	int	pad_space;
-
-	pad_space = fmt.width - print_len;
-	if (pad_space < 0)
-		pad_space = 0;
-	return (pad_space);
-}
-
 static void	fill_buffer(char *buffer, t_format fmt, char *str, int print_len)
 {
 	int	pos;
 	int	pad_space;
 
 	pos = 0;
-	pad_space = calculate_padding(fmt, print_len);
+	pad_space = calculate_string_padding(fmt, print_len);
 	if (!fmt.minus && pad_space > 0)
 	{
 		while (pos < pad_space)
@@ -70,7 +60,7 @@ int	ft_print_string(t_format fmt, char *str)
 	if (fmt.dot == 1 && fmt.precision >= 0 && fmt.precision < print_len)
 		print_len = fmt.precision;
 	fill_buffer(buffer, fmt, processed_str, print_len);
-	total_len = calculate_padding(fmt, print_len) + print_len;
+	total_len = calculate_string_padding(fmt, print_len) + print_len;
 	if (write(1, buffer, total_len) == -1)
 		return (-1);
 	return (total_len);
