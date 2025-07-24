@@ -1,17 +1,13 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_conversion_utils.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/17 20:47:53 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/23 12:56:28 by yyudi            ###   ########.fr       */
+/*   File: ft_conversion_utils.c                                               */
+/*   Berisi fungsi utilitas konversi angka ke string (unsigned, hex)           */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
+// Hitung jumlah digit unsigned integer
 static int	ft_unsigned_len(unsigned int n)
 {
 	int	len;
@@ -27,6 +23,7 @@ static int	ft_unsigned_len(unsigned int n)
 	return (len);
 }
 
+// Konversi unsigned integer ke string
 char	*ft_utoa(unsigned int n)
 {
 	char	*str;
@@ -50,6 +47,7 @@ char	*ft_utoa(unsigned int n)
 	return (str);
 }
 
+// Hitung jumlah digit angka dalam basis 16 (hex)
 static int	ft_hex_len(unsigned long n)
 {
 	int	len;
@@ -65,6 +63,7 @@ static int	ft_hex_len(unsigned long n)
 	return (len);
 }
 
+// Konversi unsigned long ke string hex (huruf besar/kecil sesuai argumen)
 char	*ft_xtoa(unsigned long n, int uppercase)
 {
 	char	*str;

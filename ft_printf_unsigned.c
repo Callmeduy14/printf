@@ -1,17 +1,13 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_printf_unsigned.c                               :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/21 10:34:00 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/23 21:52:15 by yyudi            ###   ########.fr       */
+/*   File: ft_printf_unsigned.c                                                */
+/*   Berisi fungsi untuk mencetak unsigned integer dengan format printf        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
+// Mendapatkan karakter padding ('0' jika flag zero dan tidak ada precision)
 char	get_pad_char(t_format fmt)
 {
 	char	pad_char;
@@ -22,6 +18,7 @@ char	get_pad_char(t_format fmt)
 	return (pad_char);
 }
 
+// Menyalin angka ke buffer jika bukan edge case zero-precision
 void	handle_number(char *buffer, int *pos, char *num, t_format fmt)
 {
 	int	i;
@@ -34,6 +31,7 @@ void	handle_number(char *buffer, int *pos, char *num, t_format fmt)
 	}
 }
 
+// Hitung total panjang output (termasuk padding)
 static int	calculate_total_length(t_format fmt, int num_len, unsigned int n)
 {
 	int	total;
@@ -48,6 +46,7 @@ static int	calculate_total_length(t_format fmt, int num_len, unsigned int n)
 	return (total);
 }
 
+// Bangun string output unsigned integer ke buffer sesuai format
 static void	build_unsigned_str(char *str, t_format fmt,
 			char *num, int paddings[2])
 {
@@ -57,13 +56,14 @@ static void	build_unsigned_str(char *str, t_format fmt,
 	pos = 0;
 	pad_char = get_pad_char(fmt);
 	if (!fmt.minus && paddings[1] > 0)
-		handle_padding_unsign(str, &pos, paddings[1], pad_char);
-	handle_padding_unsign(str, &pos, paddings[0], '0');
-	handle_number(str, &pos, num, fmt);
+		handle_padding_unsign(str, &pos, paddings[1], pad_char); // Padding kiri
+	handle_padding_unsign(str, &pos, paddings[0], '0'); // Padding nol
+	handle_number(str, &pos, num, fmt); // Tulis angka utama
 	if (fmt.minus && paddings[1] > 0)
-		handle_padding_unsign(str, &pos, paddings[1], ' ');
+		handle_padding_unsign(str, &pos, paddings[1], ' '); // Padding kanan
 }
 
+// Fungsi utama untuk mencetak unsigned integer
 int	ft_print_unsigned(t_format fmt, unsigned int n)
 {
 	char	*num;
@@ -72,20 +72,20 @@ int	ft_print_unsigned(t_format fmt, unsigned int n)
 	int		total_len;
 	int		result;
 
-	num = ft_utoa(n);
+	num = ft_utoa(n); // Konversi ke string
 	if (!num)
 		return (-1);
-	calculate_unsigned_padding(fmt, ft_strlen(num), n, paddings);
-	total_len = calculate_total_length(fmt, ft_strlen(num), n);
+	calculate_unsigned_padding(fmt, ft_strlen(num), n, paddings); // Hitung padding
+	total_len = calculate_total_length(fmt, ft_strlen(num), n); // Total panjang output
 	output = (char *)malloc(sizeof(char) * (total_len + 1));
 	if (!output)
 	{
 		free(num);
 		return (-1);
 	}
-	build_unsigned_str(output, fmt, num, paddings);
+	build_unsigned_str(output, fmt, num, paddings); // Bangun string output
 	free(num);
-	result = write(1, output, total_len);
+	result = write(1, output, total_len); // Cetak ke stdout
 	free(output);
 	if (result == -1)
 		return (-1);

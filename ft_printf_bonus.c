@@ -1,18 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_printf_bonus.c                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: yyudi <yyudi@student.42heilbronn.de>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/20 13:44:49 by yyudi             #+#    #+#             */
-/*   Updated: 2025/07/22 10:58:44 by yyudi            ###   ########.fr       */
+/*   File: ft_printf_bonus.c                                                   */
+/*   Berisi implementasi bonus flag untuk ft_printf (flag tambahan)            */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 #include <stdarg.h>
 
+// Cetak satu karakter dan update count
 static int	print_char(char c, int *count)
 {
 	if (write(1, &c, 1) == -1)
@@ -21,19 +17,21 @@ static int	print_char(char c, int *count)
 	return (0);
 }
 
+// Proses format setelah '%' untuk bonus flag
 static int	process_format(const char **fmt, va_list args, int *count)
 {
 	t_format	f;
 	int			chars_printed;
 
-	f = ft_parse_format(fmt, args);
-	chars_printed = ft_handle_format(args, f);
+	f = ft_parse_format(fmt, args); // Parsing format
+	chars_printed = ft_handle_format(args, f); // Cetak sesuai tipe
 	if (chars_printed == -1)
 		return (-1);
 	*count += chars_printed;
 	return (0);
 }
 
+// Fungsi utama ft_printf_bonus: mirip ft_printf, tapi support flag bonus
 int	ft_printf_bonus(const char *format, ...)
 {
 	va_list	args;
