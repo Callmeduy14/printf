@@ -31,11 +31,11 @@ static int	get_pointer_len(unsigned long ptr)
 	int		len;
 
 	if (ptr == 0)
-		return (3); // "0x0"
+		return (NPTRSIZE);
 	str = ft_xtoa(ptr, 0);
 	if (!str)
 		return (-1);
-	len = ft_strlen(str) + 2; // Tambah 2 untuk "0x"
+	len = ft_strlen(str) + 2;
 	free(str);
 	return (len);
 }
@@ -43,17 +43,20 @@ static int	get_pointer_len(unsigned long ptr)
 // Cetak isi pointer: prefix "0x" lalu hex, atau "0" jika NULL
 static int	print_pointer_content(unsigned long ptr, int *total)
 {
-	if (write(1, "0x", 2) == -1)
-		return (0);
-	*total += 2;
 	if (ptr == 0)
 	{
-		if (write(1, "0", 1) == -1)
+		if (write(1, PTRNULL, NPTRSIZE) == -1)
 			return (0);
-		(*total)++;
+		*total += NPTRSIZE;
 	}
-	else if (!print_pointer_hex(ptr, total))
-		return (0);
+	else
+	{
+		if (write(1, "0x", 2) == -1)
+			return (0);
+		*total += 2;
+		if (!print_pointer_hex(ptr, total))
+			return (0);
+	}
 	return (1);
 }
 
